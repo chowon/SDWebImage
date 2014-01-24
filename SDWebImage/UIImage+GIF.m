@@ -31,7 +31,7 @@
         NSTimeInterval duration = 0.0f;
 
         for (size_t i = 0; i < count; i++) {
-            CGImageRef image = CGImageSourceCreateImageAtIndex(source, i, NULL);
+            CGImageRef image = CGImageSourceCreateThumbnailAtIndex(source, i, (__bridge CFDictionaryRef)@{(NSString *)kCGImageSourceCreateThumbnailFromImageAlways: @(YES)});//CGImageSourceCreateImageAtIndex(source, i, NULL);
 
             duration += [self frameDurationAtIndex:i source:source];
 

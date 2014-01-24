@@ -12,40 +12,42 @@
 static char operationKey;
 static char operationArrayKey;
 
+#define kUrlStringKey @"URLStringKey"
+
 @implementation UIImageView (WebCache)
 
-- (void)setImageWithURL:(NSURL *)url {
-    [self setImageWithURL:url placeholderImage:nil options:0 progress:nil completed:nil];
+- (void)setSDImageWithURLString:(NSString *)urlString {
+    [self setSDImageWithURLString:urlString placeholderImage:nil options:SDWebImageRetryFailed progress:nil completed:nil];
 }
 
-- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder {
-    [self setImageWithURL:url placeholderImage:placeholder options:0 progress:nil completed:nil];
+- (void)setSDImageWithURLString:(NSString *)urlString placeholderImage:(UIImage *)placeholder {
+    [self setSDImageWithURLString:urlString placeholderImage:placeholder options:SDWebImageRetryFailed progress:nil completed:nil];
 }
 
-- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options {
-    [self setImageWithURL:url placeholderImage:placeholder options:options progress:nil completed:nil];
+- (void)setSDImageWithURLString:(NSString *)urlString placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options {
+    [self setSDImageWithURLString:urlString placeholderImage:placeholder options:options progress:nil completed:nil];
 }
 
-- (void)setImageWithURL:(NSURL *)url completed:(SDWebImageCompletedBlock)completedBlock {
-    [self setImageWithURL:url placeholderImage:nil options:0 progress:nil completed:completedBlock];
+- (void)setSDImageWithURLString:(NSString *)urlString completed:(SDWebImageCompletedBlock)completedBlock {
+    [self setSDImageWithURLString:urlString placeholderImage:nil options:SDWebImageRetryFailed progress:nil completed:completedBlock];
 }
 
-- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder completed:(SDWebImageCompletedBlock)completedBlock {
-    [self setImageWithURL:url placeholderImage:placeholder options:0 progress:nil completed:completedBlock];
+- (void)setSDImageWithURLString:(NSString *)urlString placeholderImage:(UIImage *)placeholder completed:(SDWebImageCompletedBlock)completedBlock {
+    [self setSDImageWithURLString:urlString placeholderImage:placeholder options:SDWebImageRetryFailed progress:nil completed:completedBlock];
 }
 
-- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options completed:(SDWebImageCompletedBlock)completedBlock {
-    [self setImageWithURL:url placeholderImage:placeholder options:options progress:nil completed:completedBlock];
+- (void)setSDImageWithURLString:(NSString *)urlString placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options completed:(SDWebImageCompletedBlock)completedBlock {
+    [self setSDImageWithURLString:urlString placeholderImage:placeholder options:options progress:nil completed:completedBlock];
 }
 
-- (void)setImageWithURL:(NSURL *)url placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageCompletedBlock)completedBlock {
+- (void)setSDImageWithURLString:(NSString *)urlString placeholderImage:(UIImage *)placeholder options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageCompletedBlock)completedBlock {
     [self cancelCurrentImageLoad];
 
     self.image = placeholder;
 
-    if (url) {
+    if (urlString) {
         __weak UIImageView *wself = self;
-        id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadWithURL:url options:options progress:progressBlock completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished) {
+        id <SDWebImageOperation> operation = [SDWebImageManager.sharedManager downloadWithURL:[NSURL URLWithString:urlString] options:options progress:progressBlock completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished) {
             if (!wself) return;
             dispatch_main_sync_safe(^{
                 if (!wself) return;
@@ -60,6 +62,7 @@ static char operationArrayKey;
         }];
         objc_setAssociatedObject(self, &operationKey, operation, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
+    [self setUrlString:urlString];
 }
 
 - (void)setAnimationImagesWithURLs:(NSArray *)arrayOfURLs {
@@ -100,6 +103,7 @@ static char operationArrayKey;
         [operation cancel];
         objc_setAssociatedObject(self, &operationKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
+    [self setUrlString:nil];
 }
 
 - (void)cancelCurrentArrayLoad {
@@ -111,6 +115,29 @@ static char operationArrayKey;
         }
     }
     objc_setAssociatedObject(self, &operationArrayKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+- (NSString *)urlString
+{
+    return objc_getAssociatedObject(self, kUrlStringKey);
+}
+
+- (void)setUrlString:(NSString *)urlString
+{
+    objc_setAssociatedObject(self, kUrlStringKey, urlString, OBJC_ASSOCIATION_COPY);
+}
+
+- (void)forcedSetImage:(UIImage *)image
+{
+    [self cancelCurrentImageLoad];
+    [self cancelCurrentArrayLoad];
+    self.image = image;
+}
+
+- (void)forcedSetImage:(UIImage *)image loadedString:(NSString *)url
+{
+    [self forcedSetImage:image];
+    [self setUrlString:url];
 }
 
 @end

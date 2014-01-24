@@ -65,6 +65,11 @@
     return [self.imageCache diskImageExistsWithKey:key];
 }
 
+- (BOOL)memoryImageExistsForURL:(NSURL *)url {
+    NSString *key = [self cacheKeyForURL:url];
+    return [self.imageCache imageFromMemoryCacheForKey:key] != nil;
+}
+
 - (id <SDWebImageOperation>)downloadWithURL:(NSURL *)url options:(SDWebImageOptions)options progress:(SDWebImageDownloaderProgressBlock)progressBlock completed:(SDWebImageCompletedWithFinishedBlock)completedBlock {
     // Invoking this method without a completedBlock is pointless
     NSParameterAssert(completedBlock);

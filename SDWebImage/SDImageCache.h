@@ -168,4 +168,6 @@ typedef NS_ENUM(NSInteger, SDImageCacheType) {
  */
 - (BOOL)diskImageExistsWithKey:(NSString *)key;
 
+- (NSData *)diskImageDataBySearchingAllPathsForKey:(NSString *)key;
+
 @end
