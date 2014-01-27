@@ -153,5 +153,5 @@
 - (void)forcedSetImage:(UIImage *)image loadedString:(NSString *)url;
 
 - (NSString *)urlString;
-
+- (void)setUrlString:(NSString *)urlString;
 @end
