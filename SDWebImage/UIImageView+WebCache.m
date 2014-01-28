@@ -119,11 +119,17 @@ static char operationArrayKey;
 - (NSString *)urlString
 {
     NSString *u = objc_getAssociatedObject(self, kUrlStringKey);
+    if ([NSStringFromClass(self.class) isEqualToString:@"GDImageView"]) {
+//        NSLog(@"GDImageView.urlString : %@", u);
+    }
     return u;
 }
 
 - (void)setUrlString:(NSString *)urlString
 {
+    if ([NSStringFromClass(self.class) isEqualToString:@"GDImageView"]) {
+//        NSLog(@"SET GDImageView.urlString : %@", urlString);
+    }
     objc_setAssociatedObject(self, kUrlStringKey, urlString, OBJC_ASSOCIATION_COPY);
 }
 
@@ -136,8 +142,11 @@ static char operationArrayKey;
 
 - (void)forcedSetImage:(UIImage *)image loadedString:(NSString *)url
 {
-    [self forcedSetImage:image];
+    [self cancelCurrentImageLoad];
+    [self cancelCurrentArrayLoad];
     [self setUrlString:url];
+    self.image = image;
+    
 }
 
 @end

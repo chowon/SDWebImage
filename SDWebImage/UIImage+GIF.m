@@ -10,6 +10,27 @@
 #import <ImageIO/ImageIO.h>
 
 @implementation UIImage (GIF)
++ (size_t)countOfGIFImageWithData:(NSData *)data
+{
+    CGImageSourceRef source = CGImageSourceCreateWithData((__bridge CFDataRef)data, NULL);
+    size_t count = CGImageSourceGetCount(source);
+    CFRelease(source);
+    return count;
+}
+
++ (void)sd_animatedGifWithData:(NSData *)data index:(NSInteger)index resultBlock:(void (^)(UIImage *image, NSTimeInterval duration, size_t count))resultBlock
+{
+    CGImageSourceRef source = CGImageSourceCreateWithData((__bridge CFDataRef)data, NULL);
+    CGImageRef imageRef = CGImageSourceCreateImageAtIndex(source, index, NULL);
+    UIImage *image = [UIImage imageWithCGImage:imageRef scale:[UIScreen mainScreen].scale orientation:UIImageOrientationUp];
+    NSTimeInterval duration = [self frameDurationAtIndex:index source:source];
+    size_t count = CGImageSourceGetCount(source);
+    CFRelease(source);
+    if (resultBlock) resultBlock(image,duration,count);
+    CFRelease(imageRef);
+    
+}
+
 
 + (UIImage *)sd_animatedGIFWithData:(NSData *)data {
     if (!data) {

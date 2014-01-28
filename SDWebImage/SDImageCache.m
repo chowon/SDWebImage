@@ -9,6 +9,7 @@
 #import "SDImageCache.h"
 #import "SDWebImageDecoder.h"
 #import "UIImage+MultiFormat.h"
+#import "NSData+ImageContentType.h"
 #import <CommonCrypto/CommonDigest.h>
 
 static const NSInteger kDefaultCacheMaxCacheAge = 60 * 60 * 24 * 7; // 1 week
@@ -163,21 +164,26 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
                 // We assume the image is PNG, in case the imageData is nil (i.e. if trying to save a UIImage directly),
                 // we will consider it PNG to avoid loosing the transparency
                 BOOL imageIsPng = YES;
-
+                BOOL imageIsGif = NO;
                 // But if we have an image data, we will look at the preffix
                 if ([imageData length] >= [kPNGSignatureData length]) {
                     imageIsPng = ImageDataHasPNGPreffix(imageData);
+                } else {
+                    NSString *imageContentType = [NSData contentTypeForImageData:data];
+                    imageIsGif = [imageContentType isEqualToString:@"image/gif"];
                 }
-
-                if (imageIsPng) {
-                    data = UIImagePNGRepresentation(image);
-                }
-                else {
-                    data = UIImageJPEGRepresentation(image, (CGFloat)1.0);
-                }
+                if (!imageIsGif) {
+                    if (imageIsPng) {
+                        data = UIImagePNGRepresentation(image);
+                    }
+                    else {
+                        data = UIImageJPEGRepresentation(image, (CGFloat)1.0);
+                    }
 #else
-                data = [NSBitmapImageRep representationOfImageRepsInArray:image.representations usingType: NSJPEGFileType properties:nil];
+                    data = [NSBitmapImageRep representationOfImageRepsInArray:image.representations usingType: NSJPEGFileType properties:nil];
 #endif
+                }
+                
             }
 
             if (data) {
