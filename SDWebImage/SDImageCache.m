@@ -55,15 +55,15 @@ BOOL ImageDataHasPNGPreffix(NSData *data) {
 }
 
 - (id)init {
-    return [self initWithNamespace:@"default"];
+    return [self initWithNamespace:@"group"];
 }
 
 - (id)initWithNamespace:(NSString *)ns {
     if ((self = [super init])) {
-        NSString *fullNamespace = [@"com.hackemist.SDWebImageCache." stringByAppendingString:ns];
+        NSString *fullNamespace = [@"com.imageCache." stringByAppendingString:ns];
 
         // Create IO serial queue
-        _ioQueue = dispatch_queue_create("com.hackemist.SDWebImageCache", DISPATCH_QUEUE_SERIAL);
+        _ioQueue = dispatch_queue_create("com.imageCache", DISPATCH_QUEUE_SERIAL);
 
         // Init default values
         _maxCacheAge = kDefaultCacheMaxCacheAge;
